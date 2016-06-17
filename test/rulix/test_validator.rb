@@ -172,8 +172,8 @@ class TestValidator < MiniTest::Test
         ssn: ['does not match format']        
       },
       address: {
-        state: ['is too long'],
-        zip: ['is too long']
+        state: ["must be exactly 2 characters long"],
+        zip: ["cannot be longer than 5 characters"]
       }
     }
 

@@ -11,10 +11,11 @@ class TestLengthValidator < MiniTest::Test
 
   def test_error_call_with_exactly
     validator = Rulix::Validators::LengthValidator.new exactly: 5
+
     string = 'This string is WAY too long'
     result = validator.call string
 
-    assert_equal([false, "is too long"], result)
+    assert_equal([false, "must be exactly 5 characters long"], result)
   end
 
   def test_call_with_min
@@ -30,7 +31,7 @@ class TestLengthValidator < MiniTest::Test
     string = 'Tiny'
     result = validator.call string
 
-    assert_equal([false, "is too short"], result)
+    assert_equal([false, "must be at least 5 characters long"], result)
   end
 
   def test_call_with_max
@@ -46,6 +47,6 @@ class TestLengthValidator < MiniTest::Test
     string = 'This string is WAY too long'
     result = validator.call string
 
-    assert_equal([false, "is too long"], result)
+    assert_equal([false, "cannot be longer than 5 characters"], result)
   end
 end

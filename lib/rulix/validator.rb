@@ -1,5 +1,3 @@
-require_relative './registry'
-
 module Rulix
   class Validator
     include Rulix::Registry
