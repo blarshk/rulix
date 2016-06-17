@@ -31,9 +31,15 @@ module Rulix
         def self.get_operation operation
           case operation
           when Symbol
-            return @registry[operation].to_proc if @registry[operation] && @registry[operation].respond_to?(:to_proc)
-            
-            operation.to_proc
+            registered_op = @registry[operation]
+
+            if registered_op
+              return registered_op.to_proc if registered_op.respond_to?(:to_proc)
+
+              registered_op.new.to_proc
+            else
+              operation.to_proc
+            end
           when Hash
             # If you're passing a hash as a rule argument, we assume that it's been registered
             # The registered rule must be instantiatable, and we assume the args passed

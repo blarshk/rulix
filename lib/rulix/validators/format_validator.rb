@@ -1,17 +1,17 @@
 module Rulix
   module Validators
     class FormatValidator
-      attr_accessor :format, :message
+      attr_accessor :pattern, :message
 
       def initialize options = nil
         options ||= {}
 
-        self.format = options[:format]
+        self.pattern = options[:pattern]
         self.message = options.fetch :message, 'does not match format'
       end
 
       def call string
-        format === string || [false, message]
+        pattern === string || [false, message]
       end
 
       def to_proc

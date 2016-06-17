@@ -160,7 +160,7 @@ class TestValidator < MiniTest::Test
       },
       address: {
         state: [length: { exactly: 2 }],
-        zip: [length: { max: 5 }]
+        zip: [length: { max: 5, min: 4 }]
       }
     }
 
@@ -178,5 +178,27 @@ class TestValidator < MiniTest::Test
     }
 
     assert_equal(expected_result, result)
+  end
+
+  def test_required_integration
+    data = { first_name: 'Bob' }
+    rules = { first_name: :required }
+
+    result = Rulix::Validator.valid? data, rules
+
+    assert_equal true, result
+  end
+
+  def test_required_integration_errors
+    data = {}
+    rules = { first_name: :required }
+
+    result = Rulix::Validator.errors data, rules
+
+    expected_result = {
+      first_name: ['is required']
+    }
+
+    assert_equal expected_result, result
   end
 end
