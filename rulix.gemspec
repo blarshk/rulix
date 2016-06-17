@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Mitch Monsen"]
   spec.email         = ["mmonsen7@gmail.com"]
 
-  spec.summary       = "Simple data manipulation through rulesets"
+  spec.summary       = "Simple data manipulation and validation through rulesets"
   spec.description   = "Rulix lets you fold complex rulesets onto complex data structures; useful for validation, data sanitization, and mutation."
   spec.homepage      = "https://github.com/blarshk/rulix"
 
