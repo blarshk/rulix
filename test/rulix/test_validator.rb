@@ -2,14 +2,26 @@ require 'test_helper'
 
 class TestValidator < MiniTest::Test
   class Foo
-    attr_accessor :ssn
+    attr_accessor :ssn, :bar
+
+    def initialize options = nil
+      options ||= {}
+      self.ssn = options[:ssn]
+      self.bar = options[:bar]
+    end
+  end
+
+  class Bar
+    attr_accessor :value
+
+    def initialize options = nil
+      options ||= {}
+
+      self.value = options[:value]
+    end
   end
 
   def test_valid?
-    Rulix::Validator.register :format do |options, val|
-      options[:pattern] === val ? true : [false, options[:message]]
-    end
-
     data = {
       ssn: '123121234'
     }
@@ -24,10 +36,6 @@ class TestValidator < MiniTest::Test
   end
 
   def test_with_failed_validations
-    Rulix::Validator.register :format do |options, val|
-      options[:pattern] === val ? true : [false, options[:message]]
-    end
-
     data = {
       ssn: '123-12-1234'
     }
@@ -42,10 +50,6 @@ class TestValidator < MiniTest::Test
   end
 
   def test_errors
-    Rulix::Validator.register :format do |options, val|
-      options[:pattern] === val ? true : [false, options[:message]]
-    end
-
     data = {
       ssn: '123121234'
     }
@@ -60,10 +64,6 @@ class TestValidator < MiniTest::Test
   end
 
   def test_errors_with_failed_validations
-    Rulix::Validator.register :format do |options, val|
-      options[:pattern] === val ? true : [false, options[:message]]
-    end
-
     data = {
       ssn: '123-12-1234'
     }
@@ -78,27 +78,26 @@ class TestValidator < MiniTest::Test
   end
 
   def test_errors_against_object
-    Rulix::Validator.register :format do |options, val|
-      options[:pattern] === val ? true : [false, options[:message]]
-    end
-
-    data = Foo.new
-    data.ssn = '123-12-1234'
+    data = Foo.new({
+      ssn: '123-12-1234',
+      bar: Bar.new({
+        value: 'hacks'
+      })
+    })
 
     rules = {
-      ssn: [format: { pattern: /\d{9}/, message: 'does not match format' }]
+      ssn: [format: { pattern: /\d{9}/, message: 'does not match format' }],
+      bar: {
+        value: -> (val) { val == 'hacks' ? [false, "can't be hacks"] : true }
+      }
     }
     
     result = Rulix::Validator.errors data, rules
 
-    assert_equal({ ssn: ['does not match format'] }, result)
+    assert_equal({ ssn: ['does not match format'], bar: { value: ["can't be hacks"] } }, result)
   end
 
   def test_errors_against_nested_hash
-    Rulix::Validator.register :format do |options, val|
-      options[:pattern] === val ? true : [false, options[:message]]
-    end
-
     Rulix::Validator.register :no_spaces do |options, val|
       val.scan(/\s/).empty? ? true : [false, options[:message]]
     end
@@ -111,7 +110,7 @@ class TestValidator < MiniTest::Test
     }
 
     rules = {
-      first_name: [:alpha_only, no_spaces: { message: 'contains spaces' }],
+      first_name: [:alpha, no_spaces: { message: 'contains spaces' }],
       profile: {
         ssn: [format: { pattern: /\d{9}/, message: 'does not match format' }]
       }
@@ -132,10 +131,6 @@ class TestValidator < MiniTest::Test
   def test_complex_dataset
     Rulix::Validator.register :email do |val|
       /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i.match(val) ? true : [false, 'is not an email address']
-    end
-
-    Rulix::Validator.register :format do |options, val|
-      options[:pattern] === val ? true : [false, options[:message]]
     end
 
     data = {
@@ -197,6 +192,28 @@ class TestValidator < MiniTest::Test
 
     expected_result = {
       first_name: ['is required']
+    }
+
+    assert_equal expected_result, result
+  end
+
+  def test_one_of_integration
+    data = { foo: 'bar' }
+    rules = { foo: { one_of: ['bar', 'baz'] } }
+
+    result = Rulix::Validator.valid? data, rules
+
+    assert_equal true, result
+  end
+
+  def test_one_of_integration_errors
+    data = { foo: 'blar' }
+    rules = { foo: { one_of: ['bar', 'baz'] } }
+
+    result = Rulix::Validator.errors data, rules
+
+    expected_result = {
+      foo: ['is not one of ["bar", "baz"]']
     }
 
     assert_equal expected_result, result

@@ -53,7 +53,7 @@ module Rulix
 
             case registered_procable
             when Proc
-              registered_procable.curry[arguments ]
+              registered_procable.curry[arguments]
             else
               registered_procable.new(arguments).to_proc
             end

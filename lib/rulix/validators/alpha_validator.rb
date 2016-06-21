@@ -16,4 +16,4 @@ module Rulix
   end
 end
 
-Rulix::Validator.register :alpha_only, Rulix::Validators::AlphaValidator
+Rulix::Validator.register :alpha, Rulix::Validators::AlphaValidator
