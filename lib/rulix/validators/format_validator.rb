@@ -4,10 +4,17 @@ module Rulix
       attr_accessor :pattern, :message
 
       def initialize options = nil
-        options ||= {}
+        case options
+        when Regexp
+          self.pattern = options
+        when Hash
+          self.pattern = options[:pattern]
+          self.message = options[:message]
+        else
+          options ||= {}
+        end
 
-        self.pattern = options[:pattern]
-        self.message = options.fetch :message, 'does not match format'
+        self.message ||= 'does not match format'
       end
 
       def call string

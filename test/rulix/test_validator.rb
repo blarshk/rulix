@@ -174,7 +174,7 @@ class TestValidator < MiniTest::Test
 
     assert_equal(expected_result, result)
   end
-
+  
   def test_required_integration
     data = { first_name: 'Bob' }
     rules = { first_name: :required }

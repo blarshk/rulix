@@ -18,4 +18,13 @@ class TestFormatValidator < MiniTest::Test
 
     assert_equal([false, "does not match format"], result)
   end
+
+  def test_init_without_options
+    format = /\d{9}/
+    validator = Rulix::Validators::FormatValidator.new format
+    string = '123121234'
+    result = validator.call string
+
+    assert_equal true, result
+  end
 end
