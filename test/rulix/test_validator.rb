@@ -170,6 +170,19 @@ class TestValidator < MiniTest::Test
 
     assert_equal(expected_result, result)
   end
+
+  def test_validation_against_empty_field
+    data = {}
+    rules = { first_name: :required }
+
+    result = Rulix::Validator.errors data, rules
+
+    expected_result = {
+      first_name: ['is required']
+    }
+
+    assert_equal expected_result, result
+  end
   
   def test_required_integration
     data = { first_name: 'Bob' }

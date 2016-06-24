@@ -2,7 +2,9 @@ module Rulix
   module Validators
     class RequiredValidator
       def call value
-        (value && !value.nil?) || [false, 'is required']
+        return [false, 'is required'] unless value
+
+        true
       end
 
       def to_proc

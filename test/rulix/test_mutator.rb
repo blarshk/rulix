@@ -72,4 +72,19 @@ class TestMutator < MiniTest::Test
     assert_equal 'BOBBO', result[:first_name]
     assert_equal 'Johnson', result[:last_name]
   end
+
+  def test_run_with_default_integration
+    data = {
+      first_name: 'Bobbo'
+    }
+
+    rules = {
+      last_name: [default: '']
+    }
+
+    result = Rulix::Mutator.run data, rules
+
+    assert_equal 'Bobbo', result[:first_name]
+    assert_equal '', result[:last_name]
+  end
 end

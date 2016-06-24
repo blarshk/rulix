@@ -6,7 +6,7 @@ module Rulix
       def initialize options = nil
         options ||= {}
         min = options[:min] || 0
-        max = options[:max] || min + 1
+        max = options[:max]
 
         self.exactly = options[:exactly]
         self.min = min
@@ -17,7 +17,13 @@ module Rulix
         return [false, "can't be nil"] unless string
 
         if exactly.nil?
-          (min..max).cover?(string.length) || [false, error_message(string)]
+          if min && max
+            (min..max).cover?(string.length) || [false, error_message(string)]
+          elsif min && !max
+            string.length >= min || [false, error_message(string)]
+          elsif max && !min
+            string.length <= max || [false, error_message(string)]
+          end
         else
           exactly == string.length || [false, exact_error_message]
         end

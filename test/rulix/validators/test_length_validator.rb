@@ -34,6 +34,14 @@ class TestLengthValidator < MiniTest::Test
     assert_equal([false, "must be at least 5 characters long"], result)
   end
 
+  def test_min_with_no_max
+    validator = Rulix::Validators::LengthValidator.new min: 5
+    string = 'Tinyish'
+    result = validator.call string
+
+    assert_equal(true, result)
+  end
+
   def test_call_with_max
     validator = Rulix::Validators::LengthValidator.new max: 5
     string = 'chars'
