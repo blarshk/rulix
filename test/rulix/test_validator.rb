@@ -129,14 +129,10 @@ class TestValidator < MiniTest::Test
   end
 
   def test_complex_dataset
-    Rulix::Validator.register :email do |val|
-      /\A([\w+\-].?)+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i.match(val) ? true : [false, 'is not an email address']
-    end
-
     data = {
       first_name: 'Bob',
       last_name: 'Johnson',
-      email: 'foo@bar',
+      email: 'foobar',
       profile: {
         ssn: '123-12-1234'
       },

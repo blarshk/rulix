@@ -18,7 +18,7 @@ module Rulix
       end
 
       def call string
-        pattern === string || [false, message]
+        (string && pattern === string) || [false, message]
       end
 
       def to_proc

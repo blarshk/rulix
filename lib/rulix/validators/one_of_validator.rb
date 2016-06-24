@@ -9,7 +9,7 @@ module Rulix
       end
 
       def call value
-        options.include?(value) || [false, "is not one of #{options}"]
+        (value && options.include?(value)) || [false, "is not one of #{options}"]
       end
 
       def to_proc

@@ -1,19 +1,8 @@
-module Rulix
-  module Validators
-    class AlphaValidator
-      def self.to_proc
-        new.method(:call)
-      end
+require_relative './format_validator'
 
-      def call string
-        /^[a-zA-Z\s?]*$/ === string || [false, error_message(string)]
-      end
+validator = Rulix::Validators::FormatValidator.new(
+  pattern: /^[a-zA-Z\s?]*$/,
+  message: "contains non-alpha characters"
+)
 
-      def error_message string
-        "contains non-alpha characters"
-      end
-    end
-  end
-end
-
-Rulix::Validator.register :alpha, Rulix::Validators::AlphaValidator
+Rulix::Validator.register :alpha, validator

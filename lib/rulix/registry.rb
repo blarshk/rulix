@@ -8,7 +8,7 @@ module Rulix
           return register_block symbol, &block if block_given?
 
           if !procable.respond_to?(:to_proc)
-            unless (procable.respond_to?(:new) && procable.new.respond_to?(:to_proc))
+            unless (procable.respond_to?(:new) && procable.instance_methods.include?(:to_proc))
               raise ArgumentError, "You attempted to register :#{symbol}, but the argument you passed can't be coerced into a proc!"
             end
           end

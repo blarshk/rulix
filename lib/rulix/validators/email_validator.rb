@@ -1,19 +1,8 @@
-module Rulix
-  module Validators
-    class EmailValidator
-      def self.to_proc
-        new.method(:call)
-      end
+require_relative './format_validator'
 
-      def call string
-        /.*@.*/ === string || [false, error_message(string)]
-      end
+validator = Rulix::Validators::FormatValidator.new(
+  pattern: /.*@.*/, 
+  message: 'is not an email address'
+)
 
-      def error_message string
-        "is not an email address"
-      end
-    end
-  end
-end
-
-Rulix::Validator.register :email, Rulix::Validators::EmailValidator
+Rulix::Validator.register :email, validator

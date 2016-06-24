@@ -14,6 +14,8 @@ module Rulix
       end
 
       def call string
+        return [false, "can't be nil"] unless string
+
         if exactly.nil?
           (min..max).cover?(string.length) || [false, error_message(string)]
         else

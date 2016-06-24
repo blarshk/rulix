@@ -6,6 +6,8 @@ module Rulix
       end
 
       def call value
+        return [false, error_message] unless value
+
         case value
         when Integer, Fixnum
           true
@@ -16,7 +18,7 @@ module Rulix
         end
       end
 
-      def error_message value
+      def error_message value = nil
         "is not a number"
       end
     end
