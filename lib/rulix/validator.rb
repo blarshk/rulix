@@ -1,19 +1,15 @@
 module Rulix
-  class Validator
+  class Validator < Rulix::Base
     include Rulix::Registry
 
     def self.run dataset, ruleset
       dataset = data_for_ruleset dataset, ruleset
 
-      dataset.deep_merge ruleset do |key, val1, val2|
-        val2 = [val2] unless val2.is_a? Array
-
-        ops = get_operations val2
-
-        success, errors = ops.reduce([true, []]) do |result, op|
+      super dataset, ruleset do |value, operations|
+        success, errors = operations.reduce([true, []]) do |result, op|
           success, errors = result
 
-          new_success, *new_errors = op.call(val1)
+          new_success, *new_errors = op.call(value)
 
           [success && new_success, errors.concat(new_errors)]
         end

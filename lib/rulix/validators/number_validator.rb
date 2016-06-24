@@ -12,7 +12,7 @@ module Rulix
         when Integer, Fixnum
           true
         when String
-          /^[\d]*$/ === value || [false, error_message(value)]
+          /^\d+$/ === value || [false, error_message(value)]
         else
           [false, error_message(value)]
         end
