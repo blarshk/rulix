@@ -88,7 +88,11 @@ Some rules may need additional definition or configuration based on context. If 
 
 ```ruby
 # Configurable proc
--> (options, value) { value[0..options[:trim_to] - 1] }
+trimmer = -> (options, value) { value[0..options[:trim_to] - 1] }
+
+Rulix::Mutator.register :trim, trimmer
+
+{ first_name: { trim: { trim_to: 5 } } }
 
 # Configured procable object
 class CharacterRemover
@@ -176,6 +180,8 @@ Rulix::Mutator.run dataset, ruleset
 #=> { first_name: 'Bob', last_name: 'Johnson' }
 ```
 
+See the wiki for a [list of included mutator functions](https://github.com/blarshk/rulix/wiki/List-of-Included-Mutator-Functions).
+
 ## Validation
 
 Use `Rulix::Validator` to validate a dataset. You can test if a dataset is valid with `Rulix::Validator.valid?(dataset, ruleset)`. If your dataset fails validation, you can extract errors with `Rulix::Validator.errors(dataset, ruleset)`
@@ -198,6 +204,31 @@ Rulix::Validator.valid? dataset, ruleset
 Rulix::Validator.errors dataset, ruleset
 #=> { phone: { number: ['does not match format'] } }
 ```
+
+See the wiki for a [list of included validation functions](https://github.com/blarshk/rulix/wiki/List-of-Included-Validation-Functions). If you have a validation function that you like that you think should be included in Rulix's base set, submit a pull request!
+
+### Validating with ActiveRecord
+
+Rulix comes with a plugin class that you can use to validate ActiveRecord models.
+
+```ruby
+class User < ActiveRecord::Base
+  validates :email, uniqueness: true
+
+  validates_with Rulix::ActiveRecordValidator, ruleset: {
+    email: { format: /.*@.*/, message: 'is not an email address' }
+  }
+end
+
+user = User.new email: 'foobar'
+
+user.valid?
+#=> false
+user.errors.full_messages
+#=> ['Email is not an email address']
+```
+
+The adapter can be used alongside ActiveRecord's own validators, so you can keep using ActiveRecord to validate the things it's good at, and delegate the rest to Rulix!
 
 ## Custom Validators and Mutators
 
@@ -229,20 +260,16 @@ Rulix::Validator.register :doesnt_end_in_oo do |val|
   val.end_with?('oo') ? [false, 'ends in oo'] : true
 end
 
-Rulix::Validator.register :digits_only do |val|
-  /^[0-9]+$/ === val ? true : [false, 'contains non-digits']
-end
-
 data = {
   my_field: 'foo'
 }
 
 rules = {
-  my_field: [:digits_only, :doesnt_end_in_oo]
+  my_field: [:number, :doesnt_end_in_oo]
 }
 
 Rulix::Validator.run data, rules
-#=> { my_field: ['contains non-digits', 'ends in oo'] }
+#=> { my_field: ['is not a number', 'ends in oo'] }
 ```
 
 ## Contributing
