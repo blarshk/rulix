@@ -9,7 +9,7 @@ module Rulix
         return [false, error_message] unless value
 
         case value
-        when Integer, Float, Bignum, Decimal, Fixnum
+        when Integer, Float, Bignum, Fixnum
           true
         when String
           /^\d+$/ === value || [false, error_message(value)]
