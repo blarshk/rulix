@@ -44,6 +44,6 @@ class TestActiveRecordValidator < MiniTest::Test
     result = validator.validate model
     expected_result = { ssn: ['does not match format'] }
 
-    assert_equal expected_result, result.errors.messages
+    assert_equal false, result
   end
 end
