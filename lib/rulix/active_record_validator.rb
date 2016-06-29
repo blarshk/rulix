@@ -9,10 +9,14 @@ module Rulix
     end
 
     def validate record
-      unless Rulix::Validator.valid? record, ruleset
+      if Rulix::Validator.valid? record, ruleset
+        true
+      else
         errors = Rulix::Validator.errors record, ruleset
 
         reduce_errors_into record, errors
+
+        false
       end
     end
 
