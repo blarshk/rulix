@@ -4,7 +4,11 @@ module Rulix
 
     def self.run dataset, ruleset
       super dataset, ruleset do |value, operations|
-        operations.reduce(value) { |val, op| op.call(val) }
+        if value.is_a? Array
+          value.map { |val| operations.reduce(val) { |v, op| op.call(v) } }
+        else
+          operations.reduce(value) { |val, op| op.call(val) }
+        end
       end
     end
 

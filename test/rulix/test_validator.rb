@@ -1,26 +1,6 @@
 require 'test_helper'
 
 class TestValidator < MiniTest::Test
-  class Foo
-    attr_accessor :ssn, :bar
-
-    def initialize options = nil
-      options ||= {}
-      self.ssn = options[:ssn]
-      self.bar = options[:bar]
-    end
-  end
-
-  class Bar
-    attr_accessor :value
-
-    def initialize options = nil
-      options ||= {}
-
-      self.value = options[:value]
-    end
-  end
-
   def test_valid?
     data = {
       ssn: '123121234'
@@ -223,6 +203,103 @@ class TestValidator < MiniTest::Test
 
     expected_result = {
       foo: ['is not one of ["bar", "baz"]']
+    }
+
+    assert_equal expected_result, result
+  end
+
+  def test_array_of_values_validations
+    data = {
+      genres: ['pop', 'rock']
+    }
+
+    rules = {
+      genres: [one_of: ['pop', 'rock']]
+    }
+
+    result = Rulix::Validator.valid? data, rules
+
+    assert_equal true, result
+  end
+
+  def test_array_of_values_validation_errors
+    data = {
+      genres: ['country', 'hip-hop']
+    }
+
+    rules = {
+      genres: [one_of: ['pop', 'rock']]
+    }
+
+    result = Rulix::Validator.errors data, rules
+
+    expected_result = {
+      genres: ["is not one of [\"pop\", \"rock\"]", "is not one of [\"pop\", \"rock\"]"]
+    }
+
+    assert_equal expected_result, result
+  end
+
+  def test_array_of_hashes_validations
+    data = {
+      songs: [
+        { title: 'Fools', duration: '185' },
+        { title: 'More Fools', duration: '260' },
+      ]
+    }
+
+    rules = {
+      songs: [
+        { duration: [format: /\d{3}/] }
+      ]
+    }
+
+    result = Rulix::Validator.valid? data, rules
+
+    assert_equal true, result
+  end
+
+  def test_array_of_objects_validations
+    data = Foo.new({
+      ssn: '123121234',
+      bar: Bar.new({
+        value: ['baz']
+      })
+    })
+
+    rules = {
+      ssn: :number,
+      bar: {
+        value: [one_of: ['baz', 'qix']]
+      }
+    }
+
+    result = Rulix::Validator.valid? data, rules
+
+    assert_equal true, result
+  end
+
+  def test_array_of_objects_and_hashes_validations
+    data = Foo.new({
+      ssn: '123121234',
+      bar: Bar.new({
+        value: [{ id: 'C123' }]
+      })
+    })
+
+    rules = {
+      ssn: :number,
+      bar: {
+        value: [{ id: [:number] }]
+      }
+    }
+
+    result = Rulix::Validator.errors data, rules
+
+    expected_result = {
+      bar: {
+        value: [{ id: ['is not a number'] }]
+      }
     }
 
     assert_equal expected_result, result

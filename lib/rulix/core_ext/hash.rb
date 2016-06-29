@@ -85,8 +85,14 @@ class Hash
       if this_value.respond_to?(:empty?)
         if this_value.empty?
           self.delete current_key
-        elsif this_value.is_a?(Hash)
+        elsif this_value.is_a?(Hash)          
           self[current_key] = this_value.deep_compact
+        elsif this_value.is_a?(Array)
+          if this_value.all? { |v| v.respond_to?(:empty?) && v.empty? }
+            self.delete current_key
+          elsif this_value.all? { |v| v.respond_to?(:deep_compact) }
+            self[current_key] = this_value.map(&:deep_compact)
+          end
         end
       else
         self.delete current_key if this_value.nil?

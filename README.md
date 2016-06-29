@@ -195,7 +195,7 @@ dataset = {
 
 ruleset = {
   phone: {
-    number: [{format: /\d{10}/, message: 'does not match format'}]
+    number: [format: /\d{10}/]
   }
 }
 
@@ -216,7 +216,7 @@ class User < ActiveRecord::Base
   validates :email, uniqueness: true
 
   validates_with Rulix::ActiveRecordValidator, ruleset: {
-    email: { format: /.*@.*/, message: 'is not an email address' }
+    email: { format: { pattern: /.*@.*/, message: 'is not an email address' } }
   }
 end
 

@@ -33,4 +33,16 @@ class TestRegistry < Minitest::Test
 
     assert_raises(ArgumentError) { FakeRegistry.register label, unprocable }
   end
+
+  def test_string_for_symbol_registration
+    space_squeezer = -> (value) { value.squeeze ' ' }
+
+    FakeRegistry.register :squeeze_spaces, space_squeezer
+
+    op = FakeRegistry.get_operation 'squeeze_spaces'
+
+    result = op.call("Foo   and    Bar")
+
+    assert_equal 'Foo and Bar', result
+  end
 end

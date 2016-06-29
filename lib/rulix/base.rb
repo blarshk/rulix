@@ -7,13 +7,29 @@ module Rulix
 
       dataset = data_for_ruleset dataset, ruleset
 
-      dataset.deep_merge ruleset do |key, val1, val2|
-        val2 = [val2] unless val2.is_a? Array
-
-        ops = get_operations val2
-
-        yield val1, ops
+      dataset.deep_merge ruleset do |key, data_obj, operation_obj|
+        if (data_obj.is_a?(Array) && data_obj.all? { |o| o.respond_to?(:deep_merge) })
+          data_obj.map do |data|
+            data.deep_merge operation_obj.first do |k, d, o|
+              yield *handle_merge(d, o)
+            end
+          end
+        elsif data_obj.is_a?(Array)
+          data_obj.map do |obj|
+            yield *handle_merge(obj, operation_obj)
+          end.flatten
+        else
+          yield *handle_merge(data_obj, operation_obj)
+        end
       end
+    end
+
+    def self.handle_merge data_obj, operation_obj
+      operation_obj = [operation_obj] unless operation_obj.is_a? Array
+
+      ops = get_operations operation_obj
+
+      [data_obj, ops]
     end
 
     def self.data_for_ruleset dataset, ruleset
@@ -32,6 +48,12 @@ module Rulix
           seed = {}
 
           data_hash[key] = reduce_into_hash seed, nested_value, rule_val
+        elsif nested_value.is_a?(Array) && nested_value.all? { |val| val.is_a?(Hash) }
+          seed = {}
+
+          data_hash[key] = nested_value.map do |nested_val|
+            reduce_into_hash seed, nested_val, rule_val.first
+          end
         else
           data_hash[key] = nested_value
         end

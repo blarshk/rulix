@@ -87,4 +87,38 @@ class TestMutator < MiniTest::Test
     assert_equal 'Bobbo', result[:first_name]
     assert_equal '', result[:last_name]
   end
+
+  def test_run_with_array_of_values
+    data = {
+      genres: ['pop', 'rock']
+    }
+
+    rules = {
+      genres: [:upcase]
+    }
+
+    result = Rulix::Mutator.run data, rules
+
+    assert_equal ['POP', 'ROCK'], result[:genres]
+  end
+
+  def test_run_with_array_of_objects
+    data = {
+      phones_attributes: [
+        { number: '801-111-1111' },
+        { number: '801-111-1112' }
+      ]
+    }
+
+    rules = {
+      phones_attributes: [
+        { number: [strip: /[^\d]+/] }
+      ]
+    }
+
+    result = Rulix::Mutator.run data, rules
+
+    assert_equal '8011111111', result[:phones_attributes][0][:number]
+    assert_equal '8011111112', result[:phones_attributes][1][:number]
+  end
 end

@@ -5,6 +5,8 @@ module Rulix
         @registry ||= {}
 
         def self.register symbol, procable = nil, &block
+          symbol = symbol.to_sym unless symbol.is_a? Symbol
+
           return register_block symbol, &block if block_given?
 
           if !procable.respond_to?(:to_proc)
@@ -30,8 +32,8 @@ module Rulix
 
         def self.get_operation operation
           case operation
-          when Symbol
-            registered_op = @registry[operation]
+          when Symbol, String
+            registered_op = @registry[operation.to_sym]
 
             if registered_op
               return registered_op.to_proc if registered_op.respond_to?(:to_proc)
@@ -42,12 +44,12 @@ module Rulix
             end
           when Hash
             # If you're passing a hash as a rule argument, we assume that it's been registered
-            # The registered rule must be instantiatable, and we assume the args passed
+            # The registered rule must be instantiatable or a proc, and we assume the args passed
             # should be passed to the object as config options
             key = operation.keys.first
             arguments = operation[key]
 
-            registered_procable = @registry[key]
+            registered_procable = @registry[key.to_sym]
 
             raise ArgumentError, "You've supplied a hash argument for a rule, but there's no rule registered for #{key}!" unless registered_procable
 

@@ -3,7 +3,7 @@ module Rulix
     include Rulix::Registry
 
     def self.run dataset, ruleset
-      super dataset, ruleset do |value, operations|
+      result = super dataset, ruleset do |value, operations|
         success, errors = operations.reduce([true, []]) do |result, op|
           success, errors = result
 
@@ -14,6 +14,8 @@ module Rulix
 
         errors
       end
+
+      result
     end
 
     def self.valid? dataset, ruleset
