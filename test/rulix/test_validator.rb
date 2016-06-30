@@ -304,4 +304,36 @@ class TestValidator < MiniTest::Test
 
     assert_equal expected_result, result
   end
+
+  def test_allow_nil_integration
+    data = {
+      foo: 'bar'
+    }
+
+    rules = {
+      blar: [:allow_nil, :number]
+    }
+
+    result = Rulix::Validator.valid? data, rules
+
+    assert_equal true, result
+  end
+
+  def test_passed_allow_nil_integration
+    data = {
+      foo: 'bar'
+    }
+
+    rules = {
+      foo: [:allow_nil, :number]
+    }
+
+    result = Rulix::Validator.errors data, rules
+
+    expected_result = {
+      foo: ['is not a number']
+    }
+
+    assert_equal expected_result, result
+  end
 end

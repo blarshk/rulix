@@ -5,9 +5,17 @@ module Rulix
     def self.run dataset, ruleset
       return to_enum(__callee__) unless block_given?
 
+      coercion = -> (result) { result }
+
+      if dataset.is_a?(Hash)
+        coercion = -> (result) { result.deep_stringify_keys } if String === dataset.keys.first
+
+        dataset = dataset.deep_symbolize_keys
+      end
+
       dataset = data_for_ruleset dataset, ruleset
 
-      dataset.deep_merge ruleset do |key, data_obj, operation_obj|
+      result = dataset.deep_merge ruleset do |key, data_obj, operation_obj|
         if (data_obj.is_a?(Array) && data_obj.all? { |o| o.respond_to?(:deep_merge) })
           data_obj.map do |data|
             data.deep_merge operation_obj.first do |k, d, o|
@@ -22,6 +30,8 @@ module Rulix
           yield *handle_merge(data_obj, operation_obj)
         end
       end
+
+      coercion.call(result)
     end
 
     def self.handle_merge data_obj, operation_obj

@@ -12,13 +12,13 @@ module Rulix
         when Integer, Float, Bignum, Fixnum
           true
         when String
-          /^\d+$/ === value || [false, error_message(value)]
+          /\A[+-]?\d+\.?\d+?\Z/ === value || [false, error_message]
         else
-          [false, error_message(value)]
+          [false, error_message]
         end
       end
 
-      def error_message value = nil
+      def error_message
         "is not a number"
       end
     end

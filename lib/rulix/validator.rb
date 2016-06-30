@@ -3,19 +3,21 @@ module Rulix
     include Rulix::Registry
 
     def self.run dataset, ruleset
-      result = super dataset, ruleset do |value, operations|
-        success, errors = operations.reduce([true, []]) do |result, op|
-          success, errors = result
+      super dataset, ruleset do |value, operations|
+        begin
+          success, errors = operations.reduce([true, []]) do |result, op|
+            success, errors = result
 
-          new_success, *new_errors = op.call(value)
+            new_success, *new_errors = op.call(value)
 
-          [success && new_success, errors.concat(new_errors)]
+            [success && new_success, errors.concat(new_errors)]
+          end
+        rescue AllowableNil
+          errors = []
         end
 
         errors
       end
-
-      result
     end
 
     def self.valid? dataset, ruleset
