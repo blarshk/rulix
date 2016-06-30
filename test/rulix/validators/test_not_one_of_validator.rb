@@ -1,12 +1,12 @@
 require 'test_helper'
 
-class TestNotOneOfValidator < MiniTest::Test
-  def test_call
-    validator = Rulix::Validators::NotOneOfValidator.new ['mean']
-    string = 'friendly'
-    result = validator.call string
+class TestNotOneOfValidator < ValidatorTest
+  def klass
+    Rulix::Validators::NotOneOfValidator
+  end
 
-    assert_equal true, result
+  def test_call
+    validate_with 'friendly', :pass, ['mean']
   end
 
   def test_error_call

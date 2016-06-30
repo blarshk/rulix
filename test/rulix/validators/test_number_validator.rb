@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TestNumberValidator < MiniTest::Test
+class TestNumberValidator < ValidatorTest
   def test_call
     validate_with 123, :pass
   end
@@ -25,24 +25,11 @@ class TestNumberValidator < MiniTest::Test
     validate_with '-52', :pass
   end
 
-  private
+  def klass
+    Rulix::Validators::NumberValidator
+  end
 
-    def validate_with value, expectation
-      validator = Rulix::Validators::NumberValidator.new
-      result = validator.call value
-
-      if expectation == :pass
-        validated result
-      else
-        failed result
-      end
-    end
-
-    def validated result
-      assert_equal true, result
-    end
-
-    def failed result
-      assert_equal([false, "is not a number"], result)
-    end
+  def error_message
+    'is not a number'
+  end
 end

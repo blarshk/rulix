@@ -1,6 +1,7 @@
 require 'pry'
 require 'minitest/autorun'
 require 'rulix'
+require 'validator_test'
 
 class Foo
   attr_accessor :ssn, :bar

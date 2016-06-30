@@ -1,21 +1,19 @@
 require 'test_helper'
 
-class TestRequiredValidator < MiniTest::Test
+class TestRequiredValidator < ValidatorTest
+  def klass
+    Rulix::Validators::RequiredValidator
+  end
+
+  def error_message
+    'is required'
+  end
+
   def test_call
-    validator = Rulix::Validators::RequiredValidator.new
-    value = 'foo'
-
-    result = validator.call value
-
-    assert_equal true, result
+    validate_with 'foo', :pass
   end
 
   def test_failed_call
-    validator = Rulix::Validators::RequiredValidator.new
-    value = nil
-
-    result = validator.call value
-
-    assert_equal([false, 'is required'], result)
+    validate_with nil, :fail
   end
 end

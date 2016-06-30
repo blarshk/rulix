@@ -1,18 +1,15 @@
 require 'test_helper'
 
-class TestAllowNilValidator < MiniTest::Test
+class TestAllowNilValidator < ValidatorTest
   def test_call
-    validator = Rulix::Validators::AllowNilValidator.new
-    value = nil
-
-    assert_raises(AllowableNil) { result = validator.call value }
+    assert_raises(AllowableNil) { klass.new.call(nil) }
   end
 
   def test_with_value_present
-    validator = Rulix::Validators::AllowNilValidator.new
-    value = ''
-    result = validator.call value
+    validate_with '', :pass
+  end
 
-    assert_equal true, result
+  def klass
+    Rulix::Validators::AllowNilValidator
   end
 end

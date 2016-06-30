@@ -1,30 +1,23 @@
 require 'test_helper'
 
-class TestFormatValidator < MiniTest::Test
+class TestFormatValidator < ValidatorTest
   def test_call
-    format = /\d{9}/
-    validator = Rulix::Validators::FormatValidator.new pattern: format
-    string = '123121234'
-    result = validator.call string
-
-    assert_equal true, result
+    validate_with '123121234', :pass, pattern: /\d{9}/
   end
 
   def test_error_call
-    format = /\d{9}/
-    validator = Rulix::Validators::FormatValidator.new pattern: format
-    string = 'This one totally does not match the format'
-    result = validator.call string
-
-    assert_equal([false, "does not match format"], result)
+    validate_with 'This one totally does not match the format', :fail, pattern: /\d{9}/
   end
 
   def test_init_without_options
-    format = /\d{9}/
-    validator = Rulix::Validators::FormatValidator.new format
-    string = '123121234'
-    result = validator.call string
+    validate_with '123121234', :pass, /\d{9}/
+  end
 
-    assert_equal true, result
+  def klass
+    Rulix::Validators::FormatValidator
+  end
+
+  def error_message
+    'does not match format'
   end
 end

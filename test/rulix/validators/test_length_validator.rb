@@ -1,12 +1,16 @@
 require 'test_helper'
 
-class TestLengthValidator < MiniTest::Test
-  def test_call_with_exactly
-    validator = Rulix::Validators::LengthValidator.new exactly: 5
-    string = 'chars'
-    result = validator.call string
+class TestLengthValidator < ValidatorTest
+  def klass
+    Rulix::Validators::LengthValidator
+  end
 
-    assert_equal true, result
+  def error_message
+    ''
+  end
+
+  def test_call_with_exactly
+    validate_with 'chars', :pass, exactly: 5
   end
 
   def test_error_call_with_exactly
@@ -19,11 +23,7 @@ class TestLengthValidator < MiniTest::Test
   end
 
   def test_call_with_min
-    validator = Rulix::Validators::LengthValidator.new min: 5
-    string = 'chars'
-    result = validator.call string
-
-    assert_equal true, result
+    validate_with 'chars', :pass, min: 5
   end
 
   def test_error_call_with_min
@@ -35,19 +35,11 @@ class TestLengthValidator < MiniTest::Test
   end
 
   def test_min_with_no_max
-    validator = Rulix::Validators::LengthValidator.new min: 5
-    string = 'Tinyish'
-    result = validator.call string
-
-    assert_equal(true, result)
+    validate_with 'Tinyish', :pass, min: 5
   end
 
   def test_call_with_max
-    validator = Rulix::Validators::LengthValidator.new max: 5
-    string = 'chars'
-    result = validator.call string
-
-    assert_equal true, result
+    validate_with 'chars', :pass, max: 5
   end
 
   def test_error_call_with_max
