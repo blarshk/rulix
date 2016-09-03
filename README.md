@@ -184,7 +184,7 @@ See the wiki for a [list of included mutator functions](https://github.com/blars
 
 ## Validation
 
-Use `Rulix::Validator` to validate a dataset. You can test if a dataset is valid with `Rulix::Validator.valid?(dataset, ruleset)`. If your dataset fails validation, you can extract errors with `Rulix::Validator.errors(dataset, ruleset)`
+Use `Rulix::Validator` to validate a dataset. `Rulix::Validator.run` will return a `Rulix::Validation` object, which is just hash with a few extra helpful methods (like `valid?` and `error_messages`).
 
 ```ruby
 dataset = {
@@ -199,10 +199,14 @@ ruleset = {
   }
 }
 
-Rulix::Validator.valid? dataset, ruleset
+result = Rulix::Validator.run dataset, ruleset
+
+result.valid?
 #=> false
-Rulix::Validator.errors dataset, ruleset
+result
 #=> { phone: { number: ['does not match format'] } }
+result.error_messages
+#=> ['Number does not match format']
 ```
 
 See the wiki for a [list of included validation functions](https://github.com/blarshk/rulix/wiki/List-of-Included-Validation-Functions). If you have a validation function that you like that you think should be included in Rulix's base set, submit a pull request!
@@ -270,6 +274,25 @@ rules = {
 
 Rulix::Validator.run data, rules
 #=> { my_field: ['is not a number', 'ends in oo'] }
+```
+
+The `error_message` compontent of your validations can be anything you want; the results will be concatenated into a single array.
+
+```ruby
+Rulix::Validator.register :has_a_digit do |val|
+  /\d/.match(val) ? true : [false, { code: '001', message: 'The value supplied does not contain a digit!' }]
+end
+
+data = {
+  my_field: 'bar'
+}
+
+rules = {
+  my_field: [:has_a_digit]
+}
+
+Rulix::Validator.run data, rules
+#=> { my_field: [{ code: '001', message: 'The value supplied does not contain a digit!' }] }
 ```
 
 ## Contributing

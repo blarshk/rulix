@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class TestValidator < MiniTest::Test
-  def test_valid?
+  def test_validate
     data = {
       ssn: '123121234'
     }
@@ -10,12 +10,12 @@ class TestValidator < MiniTest::Test
       ssn: [format: { pattern: /\d{9}/, message: 'does not match format' }]
     }
 
-    result = Rulix::Validator.valid? data, rules
+    result = Rulix::Validator.run data, rules
 
-    assert_equal true, result
+    assert_equal Rulix::Validation, result.class
   end
 
-  def test_with_failed_validations
+  def test_validate_error_message_integration
     data = {
       ssn: '123-12-1234'
     }
@@ -24,9 +24,9 @@ class TestValidator < MiniTest::Test
       ssn: [format: { pattern: /\d{9}/, message: 'does not match format' }]
     }
 
-    result = Rulix::Validator.valid? data, rules
+    result = Rulix::Validator.run data, rules
 
-    assert_equal false, result
+    assert_equal ['Ssn does not match format'], result.error_messages
   end
 
   def test_errors
@@ -38,7 +38,7 @@ class TestValidator < MiniTest::Test
       ssn: [format: { pattern: /\d{9}/, message: 'does not match format' }]
     }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     assert_equal({}, result)
   end
@@ -52,7 +52,7 @@ class TestValidator < MiniTest::Test
       ssn: [format: { pattern: /\d{9}/, message: 'does not match format' }]
     }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     assert_equal({ ssn: ['does not match format'] }, result)
   end
@@ -72,7 +72,7 @@ class TestValidator < MiniTest::Test
       }
     }
     
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     assert_equal({ ssn: ['does not match format'], bar: { value: ["can't be hacks"] } }, result)
   end
@@ -96,7 +96,7 @@ class TestValidator < MiniTest::Test
       }
     }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       first_name: ["contains non-alpha characters", "contains spaces"],
@@ -135,7 +135,7 @@ class TestValidator < MiniTest::Test
       }
     }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       email: ['is not an email address'],
@@ -155,7 +155,7 @@ class TestValidator < MiniTest::Test
     data = {}
     rules = { first_name: :required }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       first_name: ['is required']
@@ -177,7 +177,7 @@ class TestValidator < MiniTest::Test
     data = {}
     rules = { first_name: :required }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       first_name: ['is required']
@@ -199,7 +199,7 @@ class TestValidator < MiniTest::Test
     data = { foo: 'blar' }
     rules = { foo: { one_of: ['bar', 'baz'] } }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       foo: ['is not one of ["bar", "baz"]']
@@ -231,7 +231,7 @@ class TestValidator < MiniTest::Test
       genres: [one_of: ['pop', 'rock']]
     }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       genres: ["is not one of [\"pop\", \"rock\"]", "is not one of [\"pop\", \"rock\"]"]
@@ -294,7 +294,7 @@ class TestValidator < MiniTest::Test
       }
     }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       bar: {
@@ -328,7 +328,7 @@ class TestValidator < MiniTest::Test
       foo: [:allow_nil, :number]
     }
 
-    result = Rulix::Validator.errors data, rules
+    result = Rulix::Validator.run data, rules
 
     expected_result = {
       foo: ['is not a number']

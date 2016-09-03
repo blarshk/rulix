@@ -1,5 +1,6 @@
 require_relative './rulix/version'
 require_relative './rulix/errors'
+require_relative './rulix/validation'
 require_relative './rulix/registry'
 require_relative './rulix/base'
 require_relative './rulix/mutator'

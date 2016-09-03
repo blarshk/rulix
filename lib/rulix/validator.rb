@@ -2,34 +2,32 @@ module Rulix
   class Validator < Rulix::Base
     include Rulix::Registry
 
-    def self.run dataset, ruleset
-      super dataset, ruleset do |value, operations|
-        begin
-          success, errors = operations.reduce([true, []]) do |result, op|
-            success, errors = result
+    class << self
+      def run dataset, ruleset
+        result = super dataset, ruleset do |value, operations|
+          begin
+            success, errors = operations.reduce([true, []]) do |result, op|
+              success, errors = result
 
-            new_success, *new_errors = op.call(value)
+              new_success, *new_errors = op.call(value)
 
-            [success && new_success, errors.concat(new_errors)]
+              [success && new_success, errors.concat(new_errors)]
+            end
+          rescue AllowableNil
+            errors = []
           end
-        rescue AllowableNil
-          errors = []
+
+          errors
         end
 
-        errors
+        Rulix::Validation.new(result.deep_compact)
       end
-    end
 
-    def self.valid? dataset, ruleset
-      run = run dataset, ruleset
+      def valid? dataset, ruleset
+        run = run dataset, ruleset
 
-      run.deep_compact.empty?
-    end
-
-    def self.errors dataset, ruleset
-      run = run dataset, ruleset
-
-      run.deep_compact
+        run.empty?
+      end
     end
   end
 end

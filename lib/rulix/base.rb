@@ -2,20 +2,18 @@ module Rulix
   class Base
     include Rulix::Registry
 
+    # This will ALWAYS return a hash with symbolized keys
+    # This was a design decision to reduce the potential for dependencies
+    # by introducing HashWithIndifferentAccess or edge cases in rule
+    # registration and such
     def self.run dataset, ruleset
       return to_enum(__callee__) unless block_given?
 
-      coercion = -> (result) { result }
-
-      if dataset.is_a?(Hash)
-        coercion = -> (result) { result.deep_stringify_keys } if String === dataset.keys.first
-
-        dataset = dataset.deep_symbolize_keys
-      end
+      dataset = dataset.deep_symbolize_keys if dataset.is_a?(Hash)
 
       dataset = data_for_ruleset dataset, ruleset
 
-      result = dataset.deep_merge ruleset do |key, data_obj, operation_obj|
+      dataset.deep_merge ruleset do |key, data_obj, operation_obj|
         if (data_obj.is_a?(Array) && data_obj.all? { |o| o.respond_to?(:deep_merge) })
           data_obj.map do |data|
             data.deep_merge operation_obj.first do |k, d, o|
@@ -30,8 +28,6 @@ module Rulix
           yield *handle_merge(data_obj, operation_obj)
         end
       end
-
-      coercion.call(result)
     end
 
     def self.handle_merge data_obj, operation_obj
