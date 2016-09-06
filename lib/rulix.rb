@@ -1,3 +1,5 @@
+require 'delegate'
+
 require_relative './rulix/version'
 require_relative './rulix/errors'
 require_relative './rulix/validation'
